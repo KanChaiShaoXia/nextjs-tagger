@@ -1,16 +1,16 @@
-const withNextjsTagger = require('../next-plugin');
+const withNextjsTagger = require("../next-plugin");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true
-  }
+  // output: "export",
+  // trailingSlash: true,
+  // images: {
+  //   unoptimized: true,
+  // },
 };
 
 module.exports = withNextjsTagger({
   enabled: true,
-  prefixName: 'wb',
-  debug: true
+  prefixName: "wb",
+  debug: false,
 })(nextConfig);

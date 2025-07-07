@@ -3,20 +3,20 @@
 [![npm version](https://badge.fury.io/js/nextjs-tagger.svg)](https://badge.fury.io/js/nextjs-tagger)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A lightweight plugin that automatically adds debug attributes to HTML elements in Next.js projects for easier AI-assisted development. **Now with full `next/font` support!**
+A lightweight plugin that automatically adds debug attributes to HTML elements in Next.js projects for easier AI-assisted development.
 
 Perfect for AI coding assistants, code navigation, and debugging! When you click on an element in the browser, you can quickly tell an AI exactly which file and line to modify.
 
 ## 🌟 Features
 
-- 🎯 **Precise Code Location**: Adds `data-loc-id="file:line:column"` to HTML elements
+- 🎯 **Precise Code Location**: Adds `data-wb-id="file:line:column"` to HTML elements
 - 🚀 **Zero Runtime Cost**: Only active in development mode
 - ⚡ **Lightweight**: Minimal impact on build time
 - 🔧 **Highly Configurable**: Customize prefixes, file patterns, and more
 - 🎨 **HTML Elements Only**: Skips React components, focuses on DOM elements
 - 📦 **Static Export Compatible**: Works with `output: 'export'`
 - 🤖 **AI-Friendly**: Perfect for AI-assisted development workflows
-- ✨ **`next/font` Compatible**: Choose between Babel and SWC versions
+- ✨ **Full Next.js Compatibility**: Works with SWC and next/font
 
 ## 📦 Installation
 
@@ -38,9 +38,7 @@ pnpm add -D nextjs-tagger
 
 ## 🚀 Quick Start
 
-### Option 1: SWC Version (Recommended - Supports `next/font`)
-
-If you're using `next/font` or want full SWC compatibility:
+### Next.js Plugin (Recommended)
 
 **1. Update your `next.config.js`:**
 
@@ -59,13 +57,9 @@ module.exports = withNextjsTagger({
 })(nextConfig);
 ```
 
-**2. Remove `.babelrc.js` (if exists)** to let Next.js use SWC
+**2. Restart your development server**
 
-**3. Restart your development server**
-
-### Option 2: Babel Version (Legacy)
-
-If you're not using `next/font` and prefer Babel:
+### Babel Plugin (Alternative)
 
 **1. Create or update `.babelrc.js`:**
 
@@ -77,7 +71,7 @@ module.exports = {
       'nextjs-tagger',
       {
         enabled: process.env.NODE_ENV === 'development',
-        prefixName: 'loc',
+        prefixName: 'wb',
         debug: false
       }
     ]
@@ -92,55 +86,10 @@ module.exports = {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enabled` | `boolean` | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin |
-| `prefixName` | `string` | `'loc'` | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
+| `prefixName` | `string` | `'wb'` | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
 | `debug` | `boolean` | `false` | Enable debug logging |
 | `include` | `string[]` | `['.tsx', '.jsx']` | File extensions to process |
 | `exclude` | `string[]` | `['node_modules']` | Patterns to exclude |
-
-## 🚨 `next/font` Compatibility
-
-### Problem
-`next/font` requires SWC compiler, but the original nextjs-tagger was a Babel plugin. This caused conflicts:
-
-```
-Syntax error: "next/font" requires SWC although Babel is being used
-```
-
-### Solution
-We now provide **two versions**:
-
-1. **SWC Version** (`nextjs-tagger/next`) - Full `next/font` support
-2. **Babel Version** (`nextjs-tagger` or `nextjs-tagger/babel`) - Legacy support with warnings
-
-### Migration Guide
-
-**From Babel to SWC (Recommended):**
-
-```javascript
-// OLD: .babelrc.js
-module.exports = {
-  presets: ['next/babel'],
-  plugins: [['nextjs-tagger', { /* options */ }]]
-};
-
-// NEW: next.config.js
-const withNextjsTagger = require('nextjs-tagger/next');
-module.exports = withNextjsTagger({ /* options */ })(nextConfig);
-```
-
-**Keep using Babel:**
-```javascript
-// .babelrc.js
-module.exports = {
-  presets: ['next/babel'],
-  plugins: [
-    ['nextjs-tagger', {
-      enabled: true,
-      prefixName: 'wb'
-    }]
-  ]
-};
-```
 
 ## 🤖 AI Integration Example
 
@@ -182,7 +131,7 @@ export default function HomePage() {
 
 ## 🔄 Environment-based Configuration
 
-### SWC Version
+### Next.js Plugin
 ```javascript
 const withNextjsTagger = require('nextjs-tagger/next');
 
@@ -193,7 +142,7 @@ module.exports = withNextjsTagger({
 })(nextConfig);
 ```
 
-### Babel Version
+### Babel Plugin
 ```javascript
 module.exports = {
   presets: ['next/babel'],
@@ -223,26 +172,15 @@ module.exports = {
 
 ## 🛠 Troubleshooting
 
-### `next/font` conflicts?
-
-**Error**: `"next/font" requires SWC although Babel is being used`
-
-**Solution**: Use the SWC version:
-```javascript
-// next.config.js
-const withNextjsTagger = require('nextjs-tagger/next');
-module.exports = withNextjsTagger({ /* options */ })(nextConfig);
-```
-
 ### Plugin not working?
 
-**SWC Version:**
+**Next.js Plugin:**
 1. Check `next.config.js` configuration
-2. Ensure no `.babelrc.js` exists
-3. Restart dev server
-4. Enable debug mode
+2. Restart dev server
+3. Enable debug mode
+4. Check browser inspector for attributes
 
-**Babel Version:**
+**Babel Plugin:**
 1. Check `.babelrc.js` exists in project root
 2. Restart dev server after config changes
 3. Enable debug mode: `debug: true`
@@ -254,8 +192,7 @@ module.exports = withNextjsTagger({ /* options */ })(nextConfig);
 // Add to your global.d.ts or env.d.ts
 declare namespace JSX {
   interface HTMLAttributes<T> {
-    'wb-id'?: string;
-    'data-loc-id'?: string;
+    'data-wb-id'?: string;
   }
 }
 ```
@@ -265,7 +202,6 @@ declare namespace JSX {
 - **Development**: Minimal impact, only processes JSX files
 - **Production**: Zero impact (disabled by default)
 - **Bundle size**: No runtime code added
-- **SWC vs Babel**: SWC version is typically faster
 
 ## 🔧 Advanced Examples
 
