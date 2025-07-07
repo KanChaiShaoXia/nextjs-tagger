@@ -4,9 +4,18 @@
   "description": "A lightweight Babel plugin that automatically adds debug attributes to HTML elements in Next.js projects for easier AI-assisted development",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./babel": "./index.js",
+    "./swc": "./swc-plugin.js",
+    "./next": "./next-plugin.js"
+  },
   "files": [
     "index.js",
     "index.d.ts",
+    "swc-plugin.js",
+    "next-plugin.js",
+    "loader.js",
     "README.md"
   ],
   "scripts": {
