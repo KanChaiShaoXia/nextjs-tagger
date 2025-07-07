@@ -14,8 +14,11 @@
     "index.js",
     "index.d.ts",
     "swc-plugin.js",
+    "swc-plugin.d.ts",
     "next-plugin.js",
+    "next-plugin.d.ts",
     "loader.js",
+    "loader.d.ts",
     "README.md"
   ],
   "scripts": {
