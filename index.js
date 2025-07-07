@@ -35,7 +35,7 @@ module.exports = function nextjsTagger(babel) {
           const { opts = {} } = state;
           const {
             enabled,
-            prefixName = 'loc',
+            prefixName = 'wb',
             debug = false,
             include = ['.tsx', '.jsx'],
             exclude = ['node_modules']
@@ -97,14 +97,14 @@ module.exports = function nextjsTagger(babel) {
             t.stringLiteral(locationId)
           );
           
-          // Add attribute to element
+          // Add attribute to element (at the beginning for consistency with SWC version)
           if (!node.attributes) {
             node.attributes = [];
           }
-          node.attributes.push(newAttribute);
+          node.attributes.unshift(newAttribute);
           
           if (debug) {
-            console.log(`[nextjs-tagger] Added ${mainAttrName}="${locationId}" to <${elementName}>`);
+            console.log(`[nextjs-tagger] Added data-${prefixName}-id="${locationId}" to <${elementName}>`);
           }
         } catch (error) {
           // Silently handle errors to avoid breaking the build
