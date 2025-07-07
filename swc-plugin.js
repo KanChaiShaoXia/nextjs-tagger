@@ -44,16 +44,13 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
     return { code: source };
   }
 
-  // Use a conservative approach - only process single-line JSX tags
-  // This is safer and avoids syntax errors
+  // Simple approach: match and replace <tagname with <tagname data-wb-id="..."
   const lines = source.split('\n');
   const transformedLines = lines.map((line, lineIndex) => {
-    // Only match complete JSX tags on a single line
-    const singleLineJsxRegex = /<([a-z]+)(\s[^>]*?)?\s*(\/?)>/g;
-    
-    return line.replace(singleLineJsxRegex, (match, tagName, attributes = '', selfClosing) => {
-      // Skip if our attribute already exists
-      if (attributes.includes(`data-${prefixName}-id=`)) {
+    // Match <tagname followed by space, > or end of line
+    return line.replace(/<([a-z][a-z0-9]*)(?=\s|>|$)/g, (match, tagName, offset) => {
+      // Skip if our attribute already exists on this line
+      if (line.includes(`data-${prefixName}-id=`)) {
         return match;
       }
       
@@ -61,38 +58,18 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
       const filename = opts.filename || 'unknown';
       const relativePath = getRelativePath(filename);
       const lineNumber = lineIndex + 1;
-      const columnNumber = line.indexOf(match) + 1;
+      const columnNumber = offset + 1;
       const locationId = `${relativePath}:${lineNumber}:${columnNumber}`;
       
-      // Add our attribute
+      // Add our attribute right after the tag name
       const newAttribute = `data-${prefixName}-id="${locationId}"`;
-      
-      // Build result
-      let result;
-      const trimmedAttributes = attributes.trim();
-      const isSelfClosing = selfClosing === '/';
-      
-      if (isSelfClosing) {
-        // Self-closing tag
-        if (trimmedAttributes) {
-          result = `<${tagName} ${trimmedAttributes} ${newAttribute} />`;
-        } else {
-          result = `<${tagName} ${newAttribute} />`;
-        }
-      } else {
-        // Regular opening tag
-        if (trimmedAttributes) {
-          result = `<${tagName} ${trimmedAttributes} ${newAttribute}>`;
-        } else {
-          result = `<${tagName} ${newAttribute}>`;
-        }
-      }
       
       if (debug) {
         console.log(`[nextjs-tagger-swc] Added data-${prefixName}-id="${locationId}" to <${tagName}>`);
       }
       
-      return result;
+      // Simply replace <tagname with <tagname data-wb-id="..."
+      return `<${tagName} ${newAttribute}`;
     });
   });
 
