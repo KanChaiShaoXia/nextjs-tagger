@@ -9,6 +9,10 @@ module.exports = function nextjsTaggerLoader(source) {
   // Get loader options
   const options = this.getOptions() || {};
   
+  if (options.debug) {
+    console.log('[nextjs-tagger-loader] Processing:', this.resourcePath);
+  }
+  
   // Add filename to options for better location tracking
   const transformOptions = {
     ...options,
@@ -23,9 +27,7 @@ module.exports = function nextjsTaggerLoader(source) {
     return result.code;
   } catch (error) {
     // If transformation fails, return original source
-    if (options.debug) {
-      console.warn('[nextjs-tagger-loader] Transform failed:', error.message);
-    }
+    console.warn('[nextjs-tagger-loader] Transform failed:', error.message);
     return source;
   }
 };

@@ -19,10 +19,11 @@ function withNextjsTagger(options = {}) {
           : dev;
 
         if (shouldEnable) {
-          // Add our loader for JSX/TSX files
-          config.module.rules.push({
+          // Add a rule that runs BEFORE the default Next.js rules
+          config.module.rules.unshift({
             test: /\.(jsx|tsx)$/,
             exclude: /node_modules/,
+            enforce: 'pre', // This ensures it runs before other loaders
             use: [
               {
                 loader: require.resolve('./loader.js'),

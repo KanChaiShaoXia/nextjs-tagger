@@ -44,52 +44,57 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
     return { code: source };
   }
 
-  // More robust regex-based approach for SWC compatibility
-  // Handle both opening tags and self-closing tags
-  const jsxElementRegex = /<([a-z][a-zA-Z0-9]*)\s*([^>]*?)\s*(\/?)>/g;
-  const attributeRegex = new RegExp(`data-${prefixName}-id=`, 'g');
-  
-  let transformedCode = source;
-  
-  transformedCode = transformedCode.replace(jsxElementRegex, (match, tagName, attributes, selfClosing, offset) => {
-    // Skip if attribute already exists
-    if (attributeRegex.test(attributes)) {
-      return match;
-    }
+  // Use a conservative approach - only process single-line JSX tags
+  // This is safer and avoids syntax errors
+  const lines = source.split('\n');
+  const transformedLines = lines.map((line, lineIndex) => {
+    // Only match complete JSX tags on a single line
+    const singleLineJsxRegex = /<([a-z]+)(\s[^>]*?)?\s*(\/?)>/g;
     
-    // Calculate line number
-    const beforeMatch = source.substring(0, offset);
-    const currentLineNumber = (beforeMatch.match(/\n/g) || []).length + 1;
-    
-    // Get column (approximate)
-    const lastNewline = beforeMatch.lastIndexOf('\n');
-    const columnNumber = lastNewline === -1 ? offset + 1 : offset - lastNewline;
-    
-    // Create location ID
-    const filename = opts.filename || 'unknown';
-    const relativePath = getRelativePath(filename);
-    const locationId = `${relativePath}:${currentLineNumber}:${columnNumber}`;
-    
-    // Add our attribute
-    const newAttribute = `data-${prefixName}-id="${locationId}"`;
-    
-    // Handle spacing properly
-    let result;
-    const trimmedAttributes = attributes.trim();
-    const closing = selfClosing ? ' />' : '>';
-    
-    if (trimmedAttributes) {
-      result = `<${tagName} ${trimmedAttributes} ${newAttribute}${closing}`;
-    } else {
-      result = `<${tagName} ${newAttribute}${closing}`;
-    }
-    
-    if (debug) {
-      console.log(`[nextjs-tagger-swc] Added data-${prefixName}-id="${locationId}" to <${tagName}>`);
-    }
-    
-    return result;
+    return line.replace(singleLineJsxRegex, (match, tagName, attributes = '', selfClosing) => {
+      // Skip if our attribute already exists
+      if (attributes.includes(`data-${prefixName}-id=`)) {
+        return match;
+      }
+      
+      // Create location ID
+      const filename = opts.filename || 'unknown';
+      const relativePath = getRelativePath(filename);
+      const lineNumber = lineIndex + 1;
+      const columnNumber = line.indexOf(match) + 1;
+      const locationId = `${relativePath}:${lineNumber}:${columnNumber}`;
+      
+      // Add our attribute
+      const newAttribute = `data-${prefixName}-id="${locationId}"`;
+      
+      // Build result
+      let result;
+      const trimmedAttributes = attributes.trim();
+      const isSelfClosing = selfClosing === '/';
+      
+      if (isSelfClosing) {
+        // Self-closing tag
+        if (trimmedAttributes) {
+          result = `<${tagName} ${trimmedAttributes} ${newAttribute} />`;
+        } else {
+          result = `<${tagName} ${newAttribute} />`;
+        }
+      } else {
+        // Regular opening tag
+        if (trimmedAttributes) {
+          result = `<${tagName} ${trimmedAttributes} ${newAttribute}>`;
+        } else {
+          result = `<${tagName} ${newAttribute}>`;
+        }
+      }
+      
+      if (debug) {
+        console.log(`[nextjs-tagger-swc] Added data-${prefixName}-id="${locationId}" to <${tagName}>`);
+      }
+      
+      return result;
+    });
   });
 
-  return { code: transformedCode };
+  return { code: transformedLines.join('\n') };
 };
