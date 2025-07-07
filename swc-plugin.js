@@ -29,7 +29,7 @@ function getRelativePath(absolutePath) {
 module.exports = function nextjsTaggerSWC(source, opts = {}) {
   const {
     enabled,
-    prefixName = 'data-loc',
+    prefixName = 'loc',
     debug = false,
     include = ['.tsx', '.jsx'],
     exclude = ['node_modules']
@@ -44,15 +44,14 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
     return { code: source };
   }
 
-  // Simple regex-based approach for SWC compatibility
-  // This is a basic implementation that adds attributes to JSX elements
-  const jsxElementRegex = /<([a-z][a-zA-Z0-9]*)\s*([^>]*)>/g;
-  const attributeRegex = new RegExp(`${prefixName}-id=`, 'g');
+  // More robust regex-based approach for SWC compatibility
+  // Handle both opening tags and self-closing tags
+  const jsxElementRegex = /<([a-z][a-zA-Z0-9]*)\s*([^>]*?)\s*(\/?)>/g;
+  const attributeRegex = new RegExp(`data-${prefixName}-id=`, 'g');
   
   let transformedCode = source;
-  let lineNumber = 1;
   
-  transformedCode = transformedCode.replace(jsxElementRegex, (match, tagName, attributes, offset) => {
+  transformedCode = transformedCode.replace(jsxElementRegex, (match, tagName, attributes, selfClosing, offset) => {
     // Skip if attribute already exists
     if (attributeRegex.test(attributes)) {
       return match;
@@ -72,13 +71,21 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
     const locationId = `${relativePath}:${currentLineNumber}:${columnNumber}`;
     
     // Add our attribute
-    const newAttribute = `${prefixName}-id="${locationId}"`;
-    const spacer = attributes && attributes.trim() ? ' ' : '';
+    const newAttribute = `data-${prefixName}-id="${locationId}"`;
     
-    const result = `<${tagName}${spacer}${attributes}${spacer}${newAttribute}>`;
+    // Handle spacing properly
+    let result;
+    const trimmedAttributes = attributes.trim();
+    const closing = selfClosing ? ' />' : '>';
+    
+    if (trimmedAttributes) {
+      result = `<${tagName} ${trimmedAttributes} ${newAttribute}${closing}`;
+    } else {
+      result = `<${tagName} ${newAttribute}${closing}`;
+    }
     
     if (debug) {
-      console.log(`[nextjs-tagger-swc] Added ${prefixName}-id="${locationId}" to <${tagName}>`);
+      console.log(`[nextjs-tagger-swc] Added data-${prefixName}-id="${locationId}" to <${tagName}>`);
     }
     
     return result;

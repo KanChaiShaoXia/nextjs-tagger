@@ -1,3 +1,5 @@
+const withNextjsTagger = require('../next-plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -7,4 +9,8 @@ const nextConfig = {
   }
 };
 
-module.exports = nextConfig;
+module.exports = withNextjsTagger({
+  enabled: true,
+  prefixName: 'wb',
+  debug: true
+})(nextConfig);

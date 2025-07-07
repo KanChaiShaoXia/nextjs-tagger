@@ -35,7 +35,7 @@ module.exports = function nextjsTagger(babel) {
           const { opts = {} } = state;
           const {
             enabled,
-            prefixName = 'data-loc',
+            prefixName = 'loc',
             debug = false,
             include = ['.tsx', '.jsx'],
             exclude = ['node_modules']
@@ -74,7 +74,7 @@ module.exports = function nextjsTagger(babel) {
           }
           
           // Check if main attribute already exists
-          const mainAttrName = `${prefixName}-id`;
+          const mainAttrName = `data-${prefixName}-id`;
           const hasMainAttr = node.attributes && node.attributes.some(attr => 
             attr.type === 'JSXAttribute' && 
             attr.name && attr.name.type === 'JSXIdentifier' && 

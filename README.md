@@ -77,7 +77,7 @@ module.exports = {
       'nextjs-tagger',
       {
         enabled: process.env.NODE_ENV === 'development',
-        prefixName: 'data-loc',
+        prefixName: 'loc',
         debug: false
       }
     ]
@@ -92,7 +92,7 @@ module.exports = {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enabled` | `boolean` | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin |
-| `prefixName` | `string` | `'data-loc'` | Prefix for the debug attribute |
+| `prefixName` | `string` | `'loc'` | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
 | `debug` | `boolean` | `false` | Enable debug logging |
 | `include` | `string[]` | `['.tsx', '.jsx']` | File extensions to process |
 | `exclude` | `string[]` | `['node_modules']` | Patterns to exclude |
@@ -147,7 +147,7 @@ module.exports = {
 Once installed, you can easily communicate with AI assistants:
 
 ```
-🧑 "I want to modify the button at wb-id='components/Header.tsx:17:6'"
+🧑 "I want to modify the button at data-wb-id='components/Header.tsx:17:6'"
 
 🤖 "I'll help you modify the button in components/Header.tsx at line 17, column 6"
 ```
@@ -172,9 +172,9 @@ export default function HomePage() {
 ```jsx
 export default function HomePage() {
   return (
-    <div className="container" wb-id="pages/index.tsx:3:4">
-      <h1 wb-id="pages/index.tsx:4:6">Welcome to my site</h1>
-      <button onClick={handleClick} wb-id="pages/index.tsx:5:6">Click me</button>
+    <div className="container" data-wb-id="pages/index.tsx:3:4">
+      <h1 data-wb-id="pages/index.tsx:4:6">Welcome to my site</h1>
+      <button onClick={handleClick} data-wb-id="pages/index.tsx:5:6">Click me</button>
     </div>
   );
 }
