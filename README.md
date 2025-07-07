@@ -43,7 +43,7 @@ pnpm add -D nextjs-tagger
 **1. Update your `next.config.js`:**
 
 ```javascript
-const withNextjsTagger = require('nextjs-tagger/next');
+const withNextjsTagger = require("nextjs-tagger/next");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -52,8 +52,8 @@ const nextConfig = {
 
 module.exports = withNextjsTagger({
   enabled: true,
-  prefixName: 'wb',
-  debug: false
+  prefixName: "wb",
+  debug: false,
 })(nextConfig);
 ```
 
@@ -65,17 +65,17 @@ module.exports = withNextjsTagger({
 
 ```javascript
 module.exports = {
-  presets: ['next/babel'],
+  presets: ["next/babel"],
   plugins: [
     [
-      'nextjs-tagger',
+      "nextjs-tagger",
       {
-        enabled: process.env.NODE_ENV === 'development',
-        prefixName: 'wb',
-        debug: false
-      }
-    ]
-  ]
+        enabled: process.env.NODE_ENV === "development",
+        prefixName: "wb",
+        debug: false,
+      },
+    ],
+  ],
 };
 ```
 
@@ -83,13 +83,13 @@ module.exports = {
 
 ## ⚙️ Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `enabled` | `boolean` | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin |
-| `prefixName` | `string` | `'wb'` | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
-| `debug` | `boolean` | `false` | Enable debug logging |
-| `include` | `string[]` | `['.tsx', '.jsx']` | File extensions to process |
-| `exclude` | `string[]` | `['node_modules']` | Patterns to exclude |
+| Option       | Type       | Default                                  | Description                                                         |
+| ------------ | ---------- | ---------------------------------------- | ------------------------------------------------------------------- |
+| `enabled`    | `boolean`  | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin                                        |
+| `prefixName` | `string`   | `'wb'`                                   | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
+| `debug`      | `boolean`  | `false`                                  | Enable debug logging                                                |
+| `include`    | `string[]` | `['.tsx', '.jsx']`                       | File extensions to process                                          |
+| `exclude`    | `string[]` | `['node_modules']`                       | Patterns to exclude                                                 |
 
 ## 🤖 AI Integration Example
 
@@ -106,10 +106,11 @@ The AI can instantly locate the exact file and position to make changes!
 ## 📱 Real-world Example
 
 **Before** (original JSX):
+
 ```jsx
 export default function HomePage() {
   return (
-    <div className="container">
+    <div className='container'>
       <h1>Welcome to my site</h1>
       <button onClick={handleClick}>Click me</button>
     </div>
@@ -118,12 +119,15 @@ export default function HomePage() {
 ```
 
 **After** (with nextjs-tagger in development):
+
 ```jsx
 export default function HomePage() {
   return (
-    <div className="container" data-wb-id="pages/index.tsx:3:4">
-      <h1 data-wb-id="pages/index.tsx:4:6">Welcome to my site</h1>
-      <button onClick={handleClick} data-wb-id="pages/index.tsx:5:6">Click me</button>
+    <div className='container' data-wb-id='pages/index.tsx:3:4'>
+      <h1 data-wb-id='pages/index.tsx:4:6'>Welcome to my site</h1>
+      <button onClick={handleClick} data-wb-id='pages/index.tsx:5:6'>
+        Click me
+      </button>
     </div>
   );
 }
@@ -132,40 +136,44 @@ export default function HomePage() {
 ## 🔄 Environment-based Configuration
 
 ### Next.js Plugin
+
 ```javascript
-const withNextjsTagger = require('nextjs-tagger/next');
+const withNextjsTagger = require("nextjs-tagger/next");
 
 module.exports = withNextjsTagger({
-  enabled: process.env.NODE_ENV === 'development',
-  prefixName: 'wb',
-  debug: process.env.NODE_ENV === 'development'
+  enabled: process.env.NODE_ENV === "development",
+  prefixName: "wb",
+  debug: process.env.NODE_ENV === "development",
 })(nextConfig);
 ```
 
 ### Babel Plugin
+
 ```javascript
 module.exports = {
-  presets: ['next/babel'],
+  presets: ["next/babel"],
   plugins: [
     [
-      'nextjs-tagger',
+      "nextjs-tagger",
       {
-        enabled: ['development', 'staging'].includes(process.env.NODE_ENV),
-        prefixName: 'wb',
-        debug: process.env.NODE_ENV === 'development'
-      }
-    ]
-  ]
+        enabled: ["development", "staging"].includes(process.env.NODE_ENV),
+        prefixName: "wb",
+        debug: process.env.NODE_ENV === "development",
+      },
+    ],
+  ],
 };
 ```
 
 ## 🚫 What Gets Tagged
 
 ✅ **Tagged (HTML elements)**:
+
 - `<div>`, `<span>`, `<button>`, `<input>`, etc.
 - Any lowercase JSX element
 
 ❌ **Not Tagged**:
+
 - React components (`<MyComponent>`)
 - Fragments (`<>` or `<React.Fragment>`)
 - Elements in `node_modules`
@@ -175,16 +183,32 @@ module.exports = {
 ### Plugin not working?
 
 **Next.js Plugin:**
+
 1. Check `next.config.js` configuration
 2. Restart dev server
 3. Enable debug mode
 4. Check browser inspector for attributes
 
 **Babel Plugin:**
+
 1. Check `.babelrc.js` exists in project root
 2. Restart dev server after config changes
 3. Enable debug mode: `debug: true`
 4. Check browser inspector for attributes
+
+### ⚠️ Important: Turbopack is NOT supported
+
+If you installed the plugin but it's not working (no attributes appear, no errors), **check if you're using `--turbopack`**:
+
+```bash
+# ❌ This will NOT work
+next dev --turbopack
+
+# ✅ Use this instead
+next dev
+```
+
+**Why?** Turbopack uses a different bundling system that doesn't support Babel plugins or SWC transforms. Remove the `--turbopack` flag to use the standard Next.js bundler.
 
 ### TypeScript errors?
 
@@ -192,7 +216,7 @@ module.exports = {
 // Add to your global.d.ts or env.d.ts
 declare namespace JSX {
   interface HTMLAttributes<T> {
-    'data-wb-id'?: string;
+    "data-wb-id"?: string;
   }
 }
 ```
@@ -206,42 +230,45 @@ declare namespace JSX {
 ## 🔧 Advanced Examples
 
 ### Custom Attribute Names
+
 ```javascript
 // Will generate: custom-debug-id="file:line:col"
-const withNextjsTagger = require('nextjs-tagger/next');
+const withNextjsTagger = require("nextjs-tagger/next");
 module.exports = withNextjsTagger({
-  prefixName: 'custom-debug'
+  prefixName: "custom-debug",
 })(nextConfig);
 ```
 
 ### Multiple Environments
-```javascript
-const withNextjsTagger = require('nextjs-tagger/next');
 
-const isDev = process.env.NODE_ENV === 'development';
-const isStaging = process.env.NODE_ENV === 'staging';
+```javascript
+const withNextjsTagger = require("nextjs-tagger/next");
+
+const isDev = process.env.NODE_ENV === "development";
+const isStaging = process.env.NODE_ENV === "staging";
 
 module.exports = withNextjsTagger({
   enabled: isDev || isStaging,
-  prefixName: isDev ? 'dev' : 'staging',
-  debug: isDev
+  prefixName: isDev ? "dev" : "staging",
+  debug: isDev,
 })(nextConfig);
 ```
 
 ### Static Export Compatibility
+
 ```javascript
 // next.config.js
-const withNextjsTagger = require('nextjs-tagger/next');
+const withNextjsTagger = require("nextjs-tagger/next");
 
 module.exports = withNextjsTagger({
   enabled: true,
-  prefixName: 'wb'
+  prefixName: "wb",
 })({
-  output: 'export',
+  output: "export",
   trailingSlash: true,
   images: {
-    unoptimized: true
-  }
+    unoptimized: true,
+  },
 });
 ```
 
