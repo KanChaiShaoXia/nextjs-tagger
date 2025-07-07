@@ -1,6 +1,6 @@
 {
   "name": "nextjs-tagger",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight Babel plugin that automatically adds debug attributes to HTML elements in Next.js projects for easier AI-assisted development",
   "main": "index.js",
   "types": "index.d.ts",
@@ -29,6 +29,9 @@
   "peerDependencies": {
     "@babel/core": "^7.0.0",
     "next": ">=13.0.0"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
