@@ -16,7 +16,8 @@ Perfect for AI coding assistants, code navigation, and debugging! When you click
 - 🎨 **HTML Elements Only**: Skips React components, focuses on DOM elements
 - 📦 **Static Export Compatible**: Works with `output: 'export'`
 - 🤖 **AI-Friendly**: Perfect for AI-assisted development workflows
-- ✨ **Full Next.js Compatibility**: Works with SWC and next/font
+- ✨ **Full Next.js Compatibility**: Works with SWC, next/font, and Turbopack
+- 🚀 **Turbopack Support**: Full compatibility with Next.js Turbopack mode
 
 ## 📦 Installation
 
@@ -58,6 +59,16 @@ module.exports = withNextjsTagger({
 ```
 
 **2. Restart your development server**
+
+**3. Works with both standard mode and Turbopack:**
+
+```bash
+# Standard mode
+npm run dev
+
+# Turbopack mode (also supported)
+npm run dev -- --turbopack
+```
 
 ### Babel Plugin (Alternative)
 
@@ -196,19 +207,17 @@ module.exports = {
 3. Enable debug mode: `debug: true`
 4. Check browser inspector for attributes
 
-### ⚠️ Important: Turbopack is NOT supported
+### ✅ Turbopack Support
 
-If you installed the plugin but it's not working (no attributes appear, no errors), **check if you're using `--turbopack`**:
+The plugin now fully supports Next.js Turbopack mode! You can use it with or without the `--turbopack` flag:
 
 ```bash
-# ❌ This will NOT work
+# ✅ Both work now
 next dev --turbopack
-
-# ✅ Use this instead
 next dev
 ```
 
-**Why?** Turbopack uses a different bundling system that doesn't support Babel plugins or SWC transforms. Remove the `--turbopack` flag to use the standard Next.js bundler.
+**How it works**: The plugin automatically detects and configures both webpack and Turbopack bundlers, ensuring seamless compatibility across all Next.js build modes.
 
 ### TypeScript errors?
 
