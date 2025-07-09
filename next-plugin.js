@@ -2,8 +2,8 @@ const nextjsTaggerSWC = require('./swc-plugin');
 
 /**
  * NextJS Tagger Next.js Plugin
- * Integrates with Next.js webpack configuration to support SWC
- * This version is compatible with next/font
+ * Integrates with Next.js webpack configuration and experimental Turbopack
+ * This version is compatible with next/font and Turbopack
  * 
  * @param {object} options - Plugin options
  * @returns {function} Next.js plugin function
@@ -43,6 +43,27 @@ function withNextjsTagger(options = {}) {
         }
 
         return config;
+      },
+      experimental: {
+        ...nextConfig.experimental,
+        turbo: {
+          ...nextConfig.experimental?.turbo,
+          rules: {
+            ...nextConfig.experimental?.turbo?.rules,
+            '*.{js,jsx,ts,tsx}': {
+              loaders: [
+                ...(nextConfig.experimental?.turbo?.rules?.['*.{js,jsx,ts,tsx}']?.loaders || []),
+                {
+                  loader: require.resolve('./loader.js'),
+                  options: {
+                    ...options,
+                    isTurbopack: true
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     };
   };
