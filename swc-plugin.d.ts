@@ -30,7 +30,7 @@ export interface NextjsTaggerSWCOptions {
    * Patterns to exclude from processing
    * @default ['node_modules']
    */
-  exclude?: string[];
+  exclude?: (string | RegExp)[];
 
   /**
    * The filename being processed

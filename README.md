@@ -94,13 +94,13 @@ module.exports = {
 
 ## ⚙️ Configuration Options
 
-| Option       | Type       | Default                                  | Description                                                         |
-| ------------ | ---------- | ---------------------------------------- | ------------------------------------------------------------------- |
-| `enabled`    | `boolean`  | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin                                        |
-| `prefixName` | `string`   | `'wb'`                                   | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
-| `debug`      | `boolean`  | `false`                                  | Enable debug logging                                                |
-| `include`    | `string[]` | `['.tsx', '.jsx']`                       | File extensions to process                                          |
-| `exclude`    | `string[]` | `['node_modules']`                       | Patterns to exclude                                                 |
+| Option       | Type                     | Default                                  | Description                                                         |
+| ------------ | ------------------------ | ---------------------------------------- | ------------------------------------------------------------------- |
+| `enabled`    | `boolean`                | `process.env.NODE_ENV === 'development'` | Whether to enable the plugin                                        |
+| `prefixName` | `string`                 | `'wb'`                                   | Prefix for the debug attribute (will become `data-{prefixName}-id`) |
+| `debug`      | `boolean`                | `false`                                  | Enable debug logging                                                |
+| `include`    | `string[]`               | `['.tsx', '.jsx']`                       | File extensions to process                                          |
+| `exclude`    | `string[]` or `RegExp[]` | `['node_modules']`                       | File patterns or paths to exclude from processing                   |
 
 ## 🤖 AI Integration Example
 
@@ -260,6 +260,20 @@ module.exports = withNextjsTagger({
   enabled: isDev || isStaging,
   prefixName: isDev ? "dev" : "staging",
   debug: isDev,
+})(nextConfig);
+```
+
+### Custom Exclude Patterns
+
+```javascript
+const withNextjsTagger = require("nextjs-tagger/next");
+
+module.exports = withNextjsTagger({
+  enabled: true,
+  prefixName: "wb",
+  exclude: [
+    /node_modules/, // RegExp pattern
+  ],
 })(nextConfig);
 ```
 

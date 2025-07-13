@@ -30,7 +30,7 @@ export interface NextjsTaggerOptions {
    * Patterns to exclude from processing
    * @default ['node_modules']
    */
-  exclude?: string[];
+  exclude?: (string | RegExp)[];
 }
 
 /**

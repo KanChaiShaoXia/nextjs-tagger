@@ -1,10 +1,10 @@
-const nextjsTaggerSWC = require('./swc-plugin');
+const nextjsTaggerSWC = require("./swc-plugin");
 
 /**
  * NextJS Tagger Next.js Plugin
  * Integrates with Next.js webpack configuration and Turbopack
  * This version is compatible with next/font and Turbopack
- * 
+ *
  * @param {object} options - Plugin options
  * @returns {function} Next.js plugin function
  */
@@ -13,8 +13,8 @@ function withNextjsTagger(options = {}) {
     // Check Next.js version to determine Turbopack config location
     let useStableTurbopack = false;
     try {
-      const nextVersion = require('next/package.json').version;
-      const [major, minor] = nextVersion.split('.').map(Number);
+      const nextVersion = require("next/package.json").version;
+      const [major, minor] = nextVersion.split(".").map(Number);
       // Next.js 15.3+ has stable Turbopack
       useStableTurbopack = major > 15 || (major === 15 && minor >= 3);
     } catch (e) {
@@ -24,27 +24,28 @@ function withNextjsTagger(options = {}) {
 
     const turbopackConfig = {
       rules: {
-        '*.{js,jsx,ts,tsx}': {
+        "*.{js,jsx,ts,tsx}": {
           loaders: [
             {
-              loader: require.resolve('./loader.js'),
-              options: JSON.parse(JSON.stringify({
-                ...options,
-                isTurbopack: true
-              }))
-            }
-          ]
-        }
-      }
+              loader: require.resolve("./loader.js"),
+              options: JSON.parse(
+                JSON.stringify({
+                  ...options,
+                  isTurbopack: true,
+                })
+              ),
+            },
+          ],
+        },
+      },
     };
 
     return {
       ...nextConfig,
       webpack(config, { isServer, dev }) {
         // Only run in development mode by default
-        const shouldEnable = options.enabled !== undefined 
-          ? options.enabled 
-          : dev;
+        const shouldEnable =
+          options.enabled !== undefined ? options.enabled : dev;
 
         if (shouldEnable) {
           // Add a rule that runs BEFORE the default Next.js rules
@@ -52,42 +53,42 @@ function withNextjsTagger(options = {}) {
             test: /\.(jsx|tsx)$/,
             exclude: [
               /node_modules/,
-              ...(options.exclude ? [options.exclude] : [])
+              ...(options.exclude ? [options.exclude] : []),
             ],
-            enforce: 'pre', // This ensures it runs before other loaders
+            enforce: "pre", // This ensures it runs before other loaders
             use: [
               {
-                loader: require.resolve('./loader.js'),
+                loader: require.resolve("./loader.js"),
                 options: {
                   ...options,
                   isServer,
-                  dev
-                }
-              }
-            ]
+                  dev,
+                },
+              },
+            ],
           });
         }
 
         // Call the original webpack config if it exists
-        if (typeof nextConfig.webpack === 'function') {
+        if (typeof nextConfig.webpack === "function") {
           return nextConfig.webpack(config, { isServer, dev });
         }
 
         return config;
       },
-      ...(useStableTurbopack 
+      ...(useStableTurbopack
         ? {
             // Next.js 15.3+ stable Turbopack config
             turbopack: {
               ...nextConfig.turbopack,
               rules: {
                 ...nextConfig.turbopack?.rules,
-                ...turbopackConfig.rules
-              }
+                ...turbopackConfig.rules,
+              },
             },
             experimental: {
-              ...nextConfig.experimental
-            }
+              ...nextConfig.experimental,
+            },
           }
         : {
             // Next.js < 15.3 experimental Turbopack config
@@ -97,12 +98,11 @@ function withNextjsTagger(options = {}) {
                 ...nextConfig.experimental?.turbo,
                 rules: {
                   ...nextConfig.experimental?.turbo?.rules,
-                  ...turbopackConfig.rules
-                }
-              }
-            }
-          }
-      )
+                  ...turbopackConfig.rules,
+                },
+              },
+            },
+          }),
     };
   };
 }

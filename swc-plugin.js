@@ -68,6 +68,22 @@ module.exports = function nextjsTaggerSWC(source, opts = {}) {
     exclude = ['node_modules']
   } = opts;
 
+  // Check if file should be excluded
+  const filename = opts.filename || '';
+  if (exclude && exclude.length > 0) {
+    for (const pattern of exclude) {
+      if (typeof pattern === 'string') {
+        if (filename.includes(pattern)) {
+          return { code: source };
+        }
+      } else if (pattern instanceof RegExp) {
+        if (pattern.test(filename)) {
+          return { code: source };
+        }
+      }
+    }
+  }
+
   // Check if plugin is enabled
   const shouldEnable = enabled !== undefined 
     ? enabled 
