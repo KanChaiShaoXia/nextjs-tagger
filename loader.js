@@ -9,6 +9,12 @@ module.exports = function nextjsTaggerLoader(source) {
   // Get loader options
   const options = this.getOptions() || {};
   
+  // Skip processing if file is in node_modules or matches exclude pattern
+  if (this.resourcePath.includes('node_modules') || 
+      (options.exclude && options.exclude.test && options.exclude.test(this.resourcePath))) {
+    return source;
+  }
+  
   if (options.debug) {
     console.log('[nextjs-tagger-loader] Processing:', this.resourcePath);
   }

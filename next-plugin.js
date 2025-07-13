@@ -2,7 +2,7 @@ const nextjsTaggerSWC = require('./swc-plugin');
 
 /**
  * NextJS Tagger Next.js Plugin
- * Integrates with Next.js webpack configuration and experimental Turbopack
+ * Integrates with Next.js webpack configuration and Turbopack
  * This version is compatible with next/font and Turbopack
  * 
  * @param {object} options - Plugin options
@@ -10,6 +10,34 @@ const nextjsTaggerSWC = require('./swc-plugin');
  */
 function withNextjsTagger(options = {}) {
   return (nextConfig = {}) => {
+    // Check Next.js version to determine Turbopack config location
+    let useStableTurbopack = false;
+    try {
+      const nextVersion = require('next/package.json').version;
+      const [major, minor] = nextVersion.split('.').map(Number);
+      // Next.js 15.3+ has stable Turbopack
+      useStableTurbopack = major > 15 || (major === 15 && minor >= 3);
+    } catch (e) {
+      // Fallback to experimental if version detection fails
+      useStableTurbopack = false;
+    }
+
+    const turbopackConfig = {
+      rules: {
+        '*.{js,jsx,ts,tsx}': {
+          loaders: [
+            {
+              loader: require.resolve('./loader.js'),
+              options: JSON.parse(JSON.stringify({
+                ...options,
+                isTurbopack: true
+              }))
+            }
+          ]
+        }
+      }
+    };
+
     return {
       ...nextConfig,
       webpack(config, { isServer, dev }) {
@@ -22,7 +50,10 @@ function withNextjsTagger(options = {}) {
           // Add a rule that runs BEFORE the default Next.js rules
           config.module.rules.unshift({
             test: /\.(jsx|tsx)$/,
-            exclude: /node_modules/,
+            exclude: [
+              /node_modules/,
+              ...(options.exclude ? [options.exclude] : [])
+            ],
             enforce: 'pre', // This ensures it runs before other loaders
             use: [
               {
@@ -44,27 +75,34 @@ function withNextjsTagger(options = {}) {
 
         return config;
       },
-      experimental: {
-        ...nextConfig.experimental,
-        turbo: {
-          ...nextConfig.experimental?.turbo,
-          rules: {
-            ...nextConfig.experimental?.turbo?.rules,
-            '*.{js,jsx,ts,tsx}': {
-              loaders: [
-                ...(nextConfig.experimental?.turbo?.rules?.['*.{js,jsx,ts,tsx}']?.loaders || []),
-                {
-                  loader: require.resolve('./loader.js'),
-                  options: {
-                    ...options,
-                    isTurbopack: true
-                  }
-                }
-              ]
+      ...(useStableTurbopack 
+        ? {
+            // Next.js 15.3+ stable Turbopack config
+            turbopack: {
+              ...nextConfig.turbopack,
+              rules: {
+                ...nextConfig.turbopack?.rules,
+                ...turbopackConfig.rules
+              }
+            },
+            experimental: {
+              ...nextConfig.experimental
             }
           }
-        }
-      }
+        : {
+            // Next.js < 15.3 experimental Turbopack config
+            experimental: {
+              ...nextConfig.experimental,
+              turbo: {
+                ...nextConfig.experimental?.turbo,
+                rules: {
+                  ...nextConfig.experimental?.turbo?.rules,
+                  ...turbopackConfig.rules
+                }
+              }
+            }
+          }
+      )
     };
   };
 }
